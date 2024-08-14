@@ -117,11 +117,7 @@ function Chat({ socket }) {
         return;
       }
     }
-    // Append the last message's words to the input if available
-    // const messageToSend = lastMessageFromFriend
-    //   ? `${input} [Re: ${lastMessageFromFriend.message}]`
-    //   : input;
-    // when i reply to a replied message, i want to send
+    
     try {
       let res = await client.post(
         `/api/chat/${idFriend}/send`,

@@ -6,19 +6,10 @@ require("dotenv").config();
 const db = require("./models");
 const { Op, where } = require("sequelize");
 const bcrypt = require("bcrypt");
-// const { findUserByUsername, registerUser, users } = require("./db/users");
-// const User = require("./model/User");
-// const ChatRoom = require("./model/ChatRoom");
+
 const jwt = require("jsonwebtoken");
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS);
-// const {
-//   chats,
-//   findChatsByParticipant,
-//   addChat,
-//   findAllChatRoom,
-//   findChatByID,
-// } = require("./db/chats");
-// const ChatMessage = require("./model/ChatMessage");
+
 const { send } = require("process");
 const { receiveMessageOnPort } = require("worker_threads");
 const app = express();
@@ -100,21 +91,7 @@ app.post("/api/users/login", async (req, res) => {
     message: "User logged in",
     token: token,
   });
-  // let findUser = findUserByUsername(req.body.username);
-  // if (findUser === undefined) {
-  //   return res.status(400).send({ message: "Username not found" });
-  // }
-  // let matchPassword = findUser.matchPassword(req.body.password);
-  // if (!matchPassword) {
-  //   return res.status(400).send({ message: "Invalid password" });
-  // }
-  // const token = jwt.sign({ username: findUser.username }, JWT_KEY);
-  // res.cookie("appakabar_token", token, {
-  //   httpOnly: true,
-  //   maxAge: 3 * 3600 * 1000, // 3jam
-  //   sameSite: "strict",
-  // });
-  // return res.status(200).send({ message: "Login success" });
+
 });
 app.post("/api/users/logout", async (req, res) => {
   res.clearCookie("appakabar_token");
@@ -147,21 +124,7 @@ app.get("/api/friends/find-friend", auth, async (req, res) => {
     message: "Friend found",
     friend: friend,
   });
-  // let findUser = findUserByUsername(findUsername);
-  // if (findUser === undefined) {
-  //   return res.status(404).send({ message: "No user found" });
-  // }
-  // let findChatRoom = findChatsByParticipant([req.username, findUser.username]);
-  // if (findChatRoom !== undefined) {
-  //   return res
-  //     .status(400)
-  //     .send({ message: `User ${findUser.username} is already your friend.` });
-  // }
-  // return res.status(200).send({
-  //   message: `Found user with username ${findUsername}`,
-  //   username: findUser.username,
-  //   phone_number: findUser.phone_number,
-  // });
+
 });
 app.post("/api/friends/add", auth, async (req, res) => {
   const { friend_username } = req.body;
@@ -196,24 +159,7 @@ app.post("/api/friends/add", auth, async (req, res) => {
     status: "success",
     message: "Friend added",
   });
-  // let { username } = req.body;
-  // if (username === req.username) {
-  //   return res.status(400).send({ message: "You can't add yourself" });
-  // }
-  // let findUser = findUserByUsername(username);
-  // if (findUser === undefined) {
-  //   return res.status(404).send({ message: "No user found" });
-  // }
-  // let findChatRoom = findChatsByParticipant([req.username, findUser.username]);
-  // if (findChatRoom !== undefined) {
-  //   return res
-  //     .status(400)
-  //     .send({ message: `User ${findUser.username} is already your friend.` });
-  // }
-  // addChat(new ChatRoom([req.username, findUser.username]));
-  // return res
-  //   .status(200)
-  //   .send({ message: `Successfully added ${findUser.username} as friend` });
+
 });
 app.get("/api/friends/contacts", auth, async (req, res) => {
   const username = req.username;
@@ -234,22 +180,7 @@ app.get("/api/friends/contacts", auth, async (req, res) => {
     message: "All chats",
     friends: friends,
   });
-  // let contacts = findAllChatRoom(req.username);
-  // let displayContact = [];
-  // contacts.forEach((element) => {
-  //   displayContact.push({
-  //     contact: element.participant.find((p) => p !== req.username),
-  //     ...element,
-  //     unread: element.messages.filter(
-  //       (message) => message.receiver == req.username && message.read == false
-  //     ).length,
-  //     last_message:
-  //       element.messages.length > 0
-  //         ? element.messages[element.messages.length - 1].body
-  //         : "",
-  //   });
-  // });
-  // return res.status(200).send(displayContact);
+
 });
 
 app.get("/api/chat/:friend_id", auth, async (req, res) => {
@@ -266,35 +197,14 @@ app.get("/api/chat/:friend_id", auth, async (req, res) => {
       ],
     },
   });
-  // const chats = await db.Chat.findAll({
-  //   where: {
-  //     [Op.or]: [{ sender: user.username }, { receiver: user.username }],
-  //   },
-  // });
+
   res.status(200).json({
     status: "success",
     message: "All chats",
     data: chats,
     receiver: friendUsername,
   });
-  // let findChat = findChatByID(req.params.friend_id);
-  // if (findChat === undefined) {
-  //   return res.status(404).send({ message: "Chat not found" });
-  // }
-  // if (!findChat.participant.includes(req.username)) {
-  //   return res.status(403).send({ message: "Unauthorized" });
-  // }
-  // findChat.messages.forEach((message) => {
-  //   if (message.receiver == req.username) {
-  //     message.readMessage();
-  //   }
-  // });
-  // let result = {
-  //   _id: findChat._id,
-  //   opposing: findChat.participant.find((p) => p != req.username),
-  //   messages: findChat.messages,
-  // };
-  // return res.status(200).send(result);
+  
 });
 app.post("/api/chat/:friend_id/send", auth, async (req, res) => {
   const user = req.username;
@@ -311,56 +221,9 @@ app.post("/api/chat/:friend_id/send", auth, async (req, res) => {
     message: "Message sent",
     data: newChat,
   });
-  // let findChat = findChatByID(req.params.friend_id);
-  // if (findChat === undefined) {
-  //   return res.status(404).send({ message: "Chat not found" });
-  // }
-  // if (!findChat.participant.includes(req.username)) {
-  //   return res.status(403).send({ message: "Unauthorized" });
-  // }
-  // let opposing = findChat.participant.find((p) => p != req.username);
-  // let { body } = req.body;
-  // if (body.startsWith("SENDPICTURE|")) {
-  //   let newMessage = new ChatMessage(
-  //     body.replace("SENDPICTURE|", ""),
-  //     "img",
-  //     req.username,
-  //     opposing
-  //   );
-  //   findChat.addMessage(newMessage);
-  //   return res.status(200).send(findChat);
-  // }
-  // let newMessage = new ChatMessage(body, "text", req.username, opposing);
-  // findChat.addMessage(newMessage);
-  // return res.status(200).send(findChat);
+  
 });
-// app.post("/api/chat/:chat_id/pin", auth, async (req, res) => {
-//   let findChat = findChatByID(req.params.chat_id);
-//   if (findChat === undefined) {
-//     return res.status(404).send({ message: "Chat not found" });
-//   }
-//   if (!findChat.participant.includes(req.username)) {
-//     return res.status(403).send({ message: "Unauthorized" });
-//   }
-//   let { idx } = req.body;
-//   findChat.messages[idx].togglePin();
-//   return res.status(200).send(findChat);
-// });
-// app.post("/api/chat/:chat_id/unsend", auth, async (req, res) => {
-//   let findChat = findChatByID(req.params.chat_id);
-//   if (findChat === undefined) {
-//     return res.status(404).send({ message: "Chat not found" });
-//   }
-//   if (!findChat.participant.includes(req.username)) {
-//     return res.status(403).send({ message: "Unauthorized" });
-//   }
-//   let { idx } = req.body;
-//   if (findChat.messages[idx].sender != req.username) {
-//     return res.status(403).send({ message: "Unauthorized" });
-//   }
-//   findChat.deleteMessage(idx);
-//   return res.status(200).send(findChat);
-// });
+
 //#endregion
 
 //#region MIDDLEWARE(S)
@@ -426,29 +289,6 @@ socketIO.on("connection", (socket) => {
   });
 });
 
-// socketIO.on("connection", (socket) => {
-//   console.log(`⚡: ${socket.id} user just connected!`);
-//   socket.on("login", (data) => {
-//     console.log(
-//       `${data.username} just logged in with ${socket.id} user just connected!`
-//     );
-//     let userlogin = db.User.findOne({ where: { username: data.username } });
-//     // let userlogin = findUserByUsername(data.username);
-//     // if (userlogin !== undefined) {
-//     //   userlogin.setSocketID(data.socketID);
-//     // }
-//   });
-//   socket.on("message", (data) => {
-//     let calledUser = db.User.findOne({ where: { username: data.username } });
-//     console.log(
-//       `Sending message to ${data.username} with socket ${calledUser.socket_id}`
-//     );
-//     socket.to(calledUser.socket_id).emit("update");
-//   });
-//   socket.on("disconnect", () => {
-//     console.log("🔥: An user disconnected");
-//   });
-// });
 
 server.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}`);
