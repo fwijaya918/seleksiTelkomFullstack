@@ -13,8 +13,10 @@ Turn on MySQL
 Frontend : npm run dev
 Backend : npx nodemon
 
-Link video demo : ...
-Foto capture terlampir
+Simple algorithm for replying message : A reply must contain a word from the other's last message to be able to answer.
+
+Link demo video : https://drive.google.com/drive/folders/14VdWQWcNsX7Jcp_n258gR7yVrT9hAMDq?usp=sharing
+
 
 
 
