@@ -1,7 +1,7 @@
-//make me a model for user according to the migrations
+
 "use strict";
 const { Model } = require("sequelize");
-
+// untuk sequelize yang digunakan untuk menghubungkan antara tabel database dengan model yang akan digunakan
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {

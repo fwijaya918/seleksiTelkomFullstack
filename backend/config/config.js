@@ -1,3 +1,4 @@
+//konfigurasi untuk koneksi ke database
 module.exports = {
 
     development: {

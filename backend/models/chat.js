@@ -1,5 +1,6 @@
 //make me a model for chat using chats from the migrations
 "use strict";
+// untuk sequelize yang digunakan untuk menghubungkan antara tabel database dengan model yang akan digunakan
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Chat extends Model {

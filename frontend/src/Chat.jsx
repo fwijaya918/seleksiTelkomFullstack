@@ -6,33 +6,39 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import client from "./client";
-import LoadingPage from "./components/LoadingPage";
-import handleError from "./util";
+import client from "./client"; // Import your HTTP client for making API requests
+import LoadingPage from "./components/LoadingPage"; // Loading page component
+import handleError from "./util"; // Utility function to handle errors
 
 function Chat({ socket }) {
+  // Get the friend ID from the URL parameters
   let { idFriend } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const scrollRef = useRef();
+  const scrollRef = useRef(); // Reference for auto-scrolling to the latest chat message
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [username, setUsername] = useState(null);
-  const [contacts, setContacts] = useState(null);
-  const [input, setInput] = useState("");
-  const [chats, setChats] = useState([]);
-  const [showFAQ, setShowFAQ] = useState(false);
-  const [replyError, setReplyError] = useState(null);
+  // State variables
+  const [isLoading, setIsLoading] = useState(true); // Loading state for the page
+  const [username, setUsername] = useState(null); // Current user's username
+  const [contacts, setContacts] = useState(null); // List of user's contacts
+  const [input, setInput] = useState(""); // Input field value for the message
+  const [chats, setChats] = useState([]); // Chat history with the current friend
+  const [showFAQ, setShowFAQ] = useState(false); // State to toggle FAQ visibility
+  const [replyError, setReplyError] = useState(null); // State to handle reply errors
 
+  // Predefined FAQ options
   const [faqOptions, setFAQOptions] = useState([
     "Apa kabar ?",
     "Sudah makan belum?",
     "Lagi apa kamu?",
     "Kamu lagi dimana?",
   ]);
+
+  // Skeleton array for loading placeholders
   const skeleton = [1, 2, 3, 4, 5, 6, 7];
 
   useEffect(() => {
+    // Check if the user is logged in
     const checkLoggedIn = async () => {
       try {
         let res = await client.get("api/users/current-user", {
@@ -44,39 +50,41 @@ function Chat({ socket }) {
           socketID: socket.id,
         });
       } catch (error) {
-        navigate("/login");
+        navigate("/login"); // Redirect to login page if not logged in
       }
     };
 
+    // Fetch chat data and contacts from the server
     const fetchData = async () => {
       try {
         let chat = await client.get(`api/chat/${idFriend}`, {
           withCredentials: true,
         });
-        setChats(chat.data.data); // Directly update the chats with the fetched data
+        setChats(chat.data.data); // Update the chat history state with fetched data
         let res = await client.get("api/friends/contacts", {
           withCredentials: true,
         });
-        setContacts(res.data.friends);
+        setContacts(res.data.friends); // Update the contacts state with fetched data
       } catch (error) {
         let errorObject = handleError(error, navigate);
         if (errorObject.status === "403") {
-          navigate("/forbidden");
+          navigate("/forbidden"); // Redirect to forbidden page on 403 error
         } else if (errorObject.status === "404") {
-          navigate("/not-found");
+          navigate("/not-found"); // Redirect to not found page on 404 error
         }
       } finally {
-        setIsLoading(false); // Hide loading screen after data is fetched
+        setIsLoading(false); // Hide the loading screen after data is fetched
       }
     };
 
+    // Execute the functions defined above
     checkLoggedIn();
     fetchData();
-    scrollRef.current?.scrollIntoView();
+    scrollRef.current?.scrollIntoView(); // Auto-scroll to the latest message
   }, [idFriend, navigate, socket]);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView();
+    scrollRef.current?.scrollIntoView(); // Auto-scroll when the chat history changes
   }, [chats]);
 
   useEffect(() => {
@@ -85,31 +93,31 @@ function Chat({ socket }) {
       await fetchData();
     };
 
-    socket.on("update", handleUpdate);
+    socket.on("update", handleUpdate); // Listen for updates on the socket
 
     return () => {
-      socket.off("update", handleUpdate);
+      socket.off("update", handleUpdate); // Clean up the socket listener
     };
   }, [socket]);
 
   const send = async (e) => {
     e.preventDefault();
-    if (input.trim() === "") return;
+    if (input.trim() === "") return; // Prevent sending empty messages
 
-    // Find the last message from the other person
+    // Find the last message from the friend (not from the user)
     const lastMessageFromFriend = chats
       .slice()
       .reverse()
       .find((chat) => chat.sender !== username);
 
-    // i want to make sure that the message i send contains a word from other person last message
-    let messageToSend = input;
+    let messageToSend = input; // Default message to send
     if (lastMessageFromFriend) {
       const lastMessageWords = lastMessageFromFriend.message.split(" ");
       const inputWords = input.split(" ");
       const commonWords = lastMessageWords.filter((word) =>
         inputWords.includes(word)
       );
+      // Check if the message contains a word from the friend's last message
       if (commonWords.length > 0) {
         messageToSend = `${input} `;
       } else {
@@ -117,36 +125,37 @@ function Chat({ socket }) {
         return;
       }
     }
-    
+
     try {
       let res = await client.post(
         `/api/chat/${idFriend}/send`,
         { body: messageToSend },
         { withCredentials: true }
       );
-      socket.emit("message", { username: res.data.receiver });
+      socket.emit("message", { username: res.data.receiver }); // Notify the server about the new message
       setInput(""); // Clear the input field after sending
-      scrollRef.current?.scrollIntoView();
-      window.location.reload();
+      scrollRef.current?.scrollIntoView(); // Scroll to the latest message
+      window.location.reload(); // Reload the page to reflect changes
     } catch (error) {
       let errorObject = handleError(error, navigate);
     }
   };
 
   const handleFAQClick = (faq) => {
-    setInput(faq); // Set the selected FAQ text to the input field
-    setShowFAQ(false); // Hide FAQ options after selection
+    setInput(faq); // Set the selected FAQ text in the input field
+    setShowFAQ(false); // Hide the FAQ options
   };
 
   const logout = async () => {
     try {
       await client.post("api/users/logout", {}, { withCredentials: true });
-      navigate("/login");
+      navigate("/login"); // Redirect to the login page after logout
     } catch (error) {
       let errorObject = handleError(error, navigate);
     }
   };
 
+  // Render the loading page if data is still being fetched
   if (isLoading) {
     return <LoadingPage />;
   }

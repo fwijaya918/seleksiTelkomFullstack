@@ -1,5 +1,42 @@
 import React from "react";
 
+/**
+ * LoadingPage Component
+ *
+ * The `LoadingPage` component provides a full-screen loading indicator, typically used during asynchronous operations where content is being loaded, such as fetching data or waiting for a process to complete. This component centers a spinner in the middle of the screen and can be used as a placeholder while loading content.
+ *
+ * Structure:
+ * - The spinner is rendered inside a `div` element with an SVG representing the loading animation. The SVG is styled to spin indefinitely, indicating a loading process.
+ * 
+ * Styling:
+ * - The component uses Tailwind CSS classes to style the page and the spinner. The spinner is centered both vertically and horizontally using a CSS grid layout.
+ * - The spinner has a default size of 12x12 (`w-12 h-12`), and it is animated with the `animate-spin` class to provide a rotating effect.
+ * - The spinner color is blue, with gray as the background color of the spinning circle.
+ * 
+ * Usage:
+ * - The `LoadingPage` component is typically used in scenarios where the user needs to wait for data to load or an operation to complete.
+ * - It can be rendered conditionally, for instance, based on a loading state in a parent component.
+ * 
+ * Example Usage:
+ * 
+ * ```jsx
+ * function MyComponent() {
+ *   const [loading, setLoading] = React.useState(true);
+ *   
+ *   React.useEffect(() => {
+ *     fetchData().then(() => setLoading(false));
+ *   }, []);
+ *   
+ *   if (loading) {
+ *     return <LoadingPage />;
+ *   }
+ * 
+ *   return <div>Data has loaded!</div>;
+ * }
+ * ```
+ * 
+ * In this example, `LoadingPage` is shown while `fetchData()` is in progress. Once the data has been fetched, the loading spinner disappears and the main content is displayed.
+ */
 function LoadingPage() {
   return (
     <div className="grid place-items-center h-screen text-[#f8f8f8] select-none">

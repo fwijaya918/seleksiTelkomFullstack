@@ -2,30 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Apply 'Segoe UI' font family to the entire document */
 body {
   font-family: "Segoe UI";
 }
 
+/* Apply background color #00A884 to div elements inside 
+   list items that are children of an element with the class 'active' */
 .active > li > div {
   @apply bg-[#00A884];
 }
+
+/* Prevent resizing of <textarea> elements */
 textarea {
   resize: none;
 }
 
+/* Style the scrollbar track (background) */
 ::-webkit-scrollbar-track {
+  /* Add an inset shadow with fully transparent color */
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+  /* Round the corners of the scrollbar track */
   border-radius: 10px;
+  /* Set the background color to transparent */
   background-color: transparent;
 }
 
+/* Style the scrollbar itself */
 ::-webkit-scrollbar {
+  /* Set the width of the scrollbar to 1% of the viewport width */
   width: 1vw;
+  /* Set the background color to transparent */
   background-color: transparent;
 }
 
+/* Style the scrollbar thumb (draggable part) */
 ::-webkit-scrollbar-thumb {
+  /* Round the corners of the scrollbar thumb */
   border-radius: 10px;
+  /* Add an inset shadow to give a slightly sunken appearance */
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  /* Set the background color of the scrollbar thumb */
   background-color: #555;
 }

@@ -1,5 +1,5 @@
 'use strict';
-
+// untuk proses db:migrate untuk memudahkan pembuatan database sesuai dengan tabel yang diinginkan
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {

@@ -1,5 +1,55 @@
 import React from "react";
 
+/**
+ * SuccessToast Component
+ *
+ * The `SuccessToast` component provides a success notification that appears as a toast message. This component is used to inform the user about a successful action, such as form submission, data saving, or any other task that completes successfully.
+ *
+ * Structure:
+ * - The component is structured with an icon indicating success, a text message, and a close button that allows the user to dismiss the toast.
+ * - The toast is positioned fixed at the bottom-left corner of the screen, making it unobtrusive but noticeable.
+ * 
+ * Props:
+ * - `children`: The content of the toast, typically a success message, passed as children to the component.
+ * 
+ * Styling:
+ * - **Container**: The toast container is styled using Tailwind CSS classes, giving it a modern look with a white background (`bg-white`) and rounded corners (`rounded-lg`).
+ * - **Icon**: A green checkmark icon is used to signify success, styled with a green background (`bg-green-100`) and green text (`text-green-500`).
+ * - **Message**: The message text is styled to be normal font weight (`font-normal`) and small size (`text-sm`).
+ * - **Close Button**: The close button is styled to blend in with the background, becoming more prominent on hover. It is positioned to the right of the toast, allowing easy dismissal.
+ * 
+ * Accessibility:
+ * - The toast includes appropriate `role="alert"` and `aria-label` attributes to ensure it is accessible and recognizable by screen readers.
+ * 
+ * Usage:
+ * - The `SuccessToast` component is typically used to provide feedback to the user after a successful operation. It can be conditionally rendered in a parent component when an operation completes successfully.
+ * 
+ * Example Usage:
+ * 
+ * ```jsx
+ * function MyComponent() {
+ *   const [showToast, setShowToast] = React.useState(false);
+ * 
+ *   const handleSubmit = () => {
+ *     // Perform some action
+ *     setShowToast(true);
+ *     setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+ *   };
+ * 
+ *   return (
+ *     <div>
+ *       <button onClick={handleSubmit}>Submit</button>
+ *       {showToast && (
+ *         <SuccessToast>Operation was successful!</SuccessToast>
+ *       )}
+ *     </div>
+ *   );
+ * }
+ * ```
+ * 
+ * In this example, the `SuccessToast` is displayed after the user performs an action. The toast automatically disappears after 3 seconds.
+ */
+
 function SuccessToast({ children }) {
   return (
     <div

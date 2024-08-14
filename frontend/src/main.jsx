@@ -13,67 +13,68 @@ import Chat from "./Chat.jsx";
 import Forbidden from "./Forbidden.jsx";
 import NotFound from "./NotFound.jsx";
 import Add from "./Add.jsx";
-import Pin from "./Pin.jsx";
-// function App() {
-//   let data = axios.get("http://localhost:3000/api", { withCredentials: true });
-//   return (
-//     <div>
-//       <p>Hello World!</p>
-//     </div>
-//   );
-// }
 
+// Initialize a WebSocket connection to the server using Socket.IO
 const socket = io("http://localhost:3000");
-socket.on("connection", (err) => console.log(err.message));
-socket.on("disconnect", (err) => console.log(err.message));
-socket.on("connect_error", (err) => console.log(err.message));
-socket.on("connect_failed", (err) => console.log(err.message));
-// export default App;
+
+// Handling different socket events
+socket.on("connection", (err) => console.log(err.message)); // On connection event
+socket.on("disconnect", (err) => console.log(err.message)); // On disconnection event
+socket.on("connect_error", (err) => console.log(err.message)); // On connection error
+socket.on("connect_failed", (err) => console.log(err.message)); // On connection failure
+
+// Create a router with different routes
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Navigate to={"/login"}></Navigate>,
-    errorElement: <NotFound />,
+    path: "/", // Root path redirects to login
+    element: <Navigate to={"/login"} />,
+    errorElement: <NotFound />, // Custom 404 component
   },
   {
-    path: "/login",
-    element: <Login socket={socket} />,
-    errorElement: <NotFound />,
-  },
-  { path: "/register", element: <Register />, errorElement: <NotFound /> },
-  {
-    path: "/home",
-    element: <Home socket={socket} />,
-    errorElement: <NotFound />,
+    path: "/login", // Login route
+    element: <Login socket={socket} />, // Passing socket instance to Login component
+    errorElement: <NotFound />, // Custom 404 component
   },
   {
-    path: "/chat/:idFriend",
-    element: <Chat socket={socket} />,
-    errorElement: <NotFound />,
+    path: "/register", // Register route
+    element: <Register />,
+    errorElement: <NotFound />, // Custom 404 component
   },
   {
-    path: "/add",
-    element: <Add socket={socket} />,
-    errorElement: <NotFound />,
+    path: "/home", // Home route
+    element: <Home socket={socket} />, // Passing socket instance to Home component
+    errorElement: <NotFound />, // Custom 404 component
   },
   {
-    path: "/server-error",
+    path: "/chat/:idFriend", // Chat route with dynamic friend ID
+    element: <Chat socket={socket} />, // Passing socket instance to Chat component
+    errorElement: <NotFound />, // Custom 404 component
+  },
+  {
+    path: "/add", // Add friend route
+    element: <Add socket={socket} />, // Passing socket instance to Add component
+    errorElement: <NotFound />, // Custom 404 component
+  },
+  {
+    path: "/server-error", // Server error route
     element: <ServerError />,
-    errorElement: <NotFound />,
+    errorElement: <NotFound />, // Custom 404 component
   },
   {
-    path: "/forbidden",
+    path: "/forbidden", // Forbidden route
     element: <Forbidden />,
-    errorElement: <NotFound />,
+    errorElement: <NotFound />, // Custom 404 component
   },
   {
-    path: "/not-found",
+    path: "/not-found", // Not found route
     element: <NotFound />,
-    errorElement: <NotFound />,
+    errorElement: <NotFound />, // Custom 404 component
   },
 ]);
+
+// Render the application with RouterProvider and StrictMode
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router}></RouterProvider>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

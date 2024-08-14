@@ -7,6 +7,65 @@ import Button from "./components/Button";
 import FloatingInput from "./components/FloatingInput";
 import ErrorMessage from "./components/ErrorMessage";
 
+/**
+ * Add Component
+ *
+ * Overview:
+ * The Add component is a feature within the application that allows users to search for and add friends.
+ * It includes functionality for handling user authentication, searching for friends by username, and sending friend requests.
+ * The component also integrates with a Socket.IO server for real-time communication.
+ *
+ * Props:
+ * - socket: The Socket.IO instance passed down from a parent component for real-time communication.
+ *
+ * State Variables:
+ * - isLoading (boolean): Manages the loading state when checking if the user is logged in.
+ * - username (string | null): Stores the username of the currently logged-in user.
+ * - errorMessage (string | null): Stores any error messages to be displayed.
+ * - contactCandidate (object | null): Stores the user object returned from the search if a match is found.
+ * - listFriends (array | null): Stores the list of friends for the current user.
+ * - input (string): The value of the search input field.
+ *
+ * Refs:
+ * - inputRef: A reference to the search input field.
+ *
+ * Functions:
+ *
+ * 1. checkLoggedIn()
+ *    - Purpose: Checks if the user is currently logged in by making a request to the server.
+ *      If logged in, the username is stored in the username state, and a login event is emitted to the Socket.IO server.
+ *      If not, the user is redirected to the login page.
+ *    - Usage: Called in a useEffect when the component mounts.
+ *
+ * 2. logout()
+ *    - Purpose: Logs the user out by making a request to the server and then redirects to the login page.
+ *    - Usage: Triggered when the user clicks the "Sign Out" button.
+ *
+ * 3. search(e)
+ *    - Purpose: Searches for a friend by username. If a match is found, the user object is stored in contactCandidate.
+ *      If the input is empty, an error message is displayed.
+ *    - Usage: Triggered when the user submits the search form.
+ *
+ * 4. add()
+ *    - Purpose: Sends a friend request to the user found by the search. Upon success, a message is emitted to the Socket.IO server,
+ *      and the user is redirected to the home page.
+ *    - Usage: Triggered when the user clicks the "Add" button.
+ *
+ * useEffect Hooks:
+ *
+ * 1. useEffect(() => { ... }, [])
+ *    - Purpose: Runs on component mount to check if the user is logged in and to fetch the current user's friends list.
+ *   
+ * 2. useEffect(() => { ... }, [input])
+ *    - Purpose: Clears the error message whenever the search input changes.
+ *
+ * JSX Structure:
+ *
+ * - Navigation Bar: Includes the app logo, app name, and a "Sign Out" button.
+ * - Search Form: Contains an input field for the username and a button to trigger the search.
+ * - Search Results: Displays the details of the found user and an "Add" button.
+ */
+
 function Add({ socket }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +75,8 @@ function Add({ socket }) {
   const [listFriends, setListFriends] = useState(null);
   const inputRef = useRef();
   const [input, setInput] = useState("");
+
+  // Function to check if the user is logged in
   async function checkLoggedIn() {
     try {
       let res = await client.get("api/users/current-user", {
@@ -30,6 +91,8 @@ function Add({ socket }) {
       navigate("/login");
     }
   }
+
+  // Function to log out the user
   async function logout() {
     try {
       let res = await client.post(
@@ -42,6 +105,8 @@ function Add({ socket }) {
       let errorObject = handleError(error, navigate);
     }
   }
+
+  // Function to search for a friend by username
   async function search(e) {
     e.preventDefault();
     if (input == "") {
@@ -62,6 +127,8 @@ function Add({ socket }) {
       }
     }
   }
+
+  // Function to send a friend request
   async function add() {
     try {
       let res = await client.post(
@@ -81,7 +148,8 @@ function Add({ socket }) {
       }
     }
   }
-  //make me useEffect to find all current user's friends everytime the page is loaded or listFriends is updated
+
+  // useEffect to find all current user's friends every time the page is loaded or listFriends is updated
   useEffect(() => {
     async function fetchContact() {
       try {
@@ -99,17 +167,24 @@ function Add({ socket }) {
     fetchContact();
   }, []);
 
+  // useEffect to check if the user is logged in on component mount
   useEffect(() => {
     setIsLoading(true);
     checkLoggedIn();
     setIsLoading(false);
   }, []);
+
+  // useEffect to clear error message when the search input changes
   useEffect(() => {
     setErrorMessage(null);
   }, [input]);
+
+  // Render loading page if isLoading is true
   if (isLoading) {
     return <LoadingPage></LoadingPage>;
   }
+
+  // Render the main content of the component
   return (
     <>
       <nav className="fixed top-0 z-50 w-full border-b bg-[#121b21] border-gray-700">

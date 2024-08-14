@@ -1,69 +1,89 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import client from "./client";
-import LoadingPage from "./components/LoadingPage";
-import handleError from "./util";
-import Button from "./components/Button";
+import client from "./client";  // Axios instance for making HTTP requests
+import LoadingPage from "./components/LoadingPage";  // Component to show a loading spinner/page
+import handleError from "./util";  // Utility function to handle errors
+import Button from "./components/Button";  // Custom Button component
 
+// Home component which is the main dashboard after user logs in
 function Home({ socket }) {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState(null);
-  const [contacts, setContacts] = useState(null);
-  const skeleton = [1, 2, 3, 4, 5, 6, 7];
+  const navigate = useNavigate();  // React Router hook for navigation
+  const [isLoading, setIsLoading] = useState(false);  // State to manage loading state
+  const [username, setUsername] = useState(null);  // State to store the current user's username
+  const [contacts, setContacts] = useState(null);  // State to store the user's contact list
+  const skeleton = [1, 2, 3, 4, 5, 6, 7];  // Skeleton structure used while loading contacts
+
+  // Function to check if the user is logged in
   async function checkLoggedIn() {
     try {
+      // Making a request to check the current user
       let res = await client.get("api/users/current-user", {
-        withCredentials: true,
+        withCredentials: true,  // Ensures cookies are sent with the request
       });
-      setUsername(res.data.username);
+      setUsername(res.data.username);  // Set the username state with the retrieved username
+      // Emit a login event with username and socket ID to the server
       socket.emit("login", {
         username: res.data.username,
         socketID: socket.id,
       });
     } catch (error) {
+      // If there's an error (e.g., not logged in), navigate to the login page
       navigate("/login");
     }
   }
+
+  // Function to log the user out
   async function logout() {
     try {
+      // Request to log out the current user
       let res = await client.post(
         "api/users/logout",
         {},
-        { withCredentials: true }
+        { withCredentials: true }  // Include credentials in the request
       );
-      navigate("/login");
+      navigate("/login");  // Navigate back to the login page after logout
     } catch (error) {
-      let errorObject = handleError(error, navigate);
+      let errorObject = handleError(error, navigate);  // Handle any errors
     }
   }
+
+  // Function to fetch the user's contacts
   async function fetchContact() {
     try {
+      // Request to get the contact list
       let res = await client.get("api/friends/contacts", {
         withCredentials: true,
       });
-      console.log("ini list friend nya " + JSON.stringify(res.data, null, 2));
-      setContacts(res.data.friends);
+      console.log("ini list friend nya " + JSON.stringify(res.data, null, 2));  // Log the contacts for debugging
+      setContacts(res.data.friends);  // Set the contacts state with the retrieved data
     } catch (error) {
-      let errorObject = handleError(error, navigate);
+      let errorObject = handleError(error, navigate);  // Handle any errors
     }
   }
+
+  // useEffect to listen for socket updates and refresh contacts when necessary
   useEffect(() => {
     socket.on("update", () => {
-      fetchContact();
+      fetchContact();  // Fetch contacts again when an update event is received
     });
-  }, [socket]);
+  }, [socket]);  // Dependencies array includes socket to ensure the effect runs when socket changes
+
+  // useEffect to check if the user is logged in and fetch contacts when the component mounts
   useEffect(() => {
-    setIsLoading(true);
-    checkLoggedIn();
-    fetchContact();
-    setIsLoading(false);
-  }, []);
+    setIsLoading(true);  // Set loading state to true
+    checkLoggedIn();  // Check if the user is logged in
+    fetchContact();  // Fetch the user's contacts
+    setIsLoading(false);  // Set loading state to false after operations are done
+  }, []);  // Empty dependencies array to run this effect only once on component mount
+
+  // If the component is in loading state, display a loading page
   if (isLoading) {
     return <LoadingPage></LoadingPage>;
   }
+
   return (
     <>
+    {/* Top navigation  */}
       <nav className="fixed top-0 z-50 w-full border-b bg-[#121b21] border-gray-700">
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between">
@@ -129,6 +149,7 @@ function Home({ socket }) {
           </div>
         </div>
       </nav>
+      {/* Side navigation */}
       <aside
         id="logo-sidebar"
         className="fixed top-0 left-0 z-40 w-full sm:w-96 h-screen pt-20 transition-transform -translate-x-full border-r sm:translate-x-0 bg-[#121b21] border-gray-700"
@@ -155,6 +176,7 @@ function Home({ socket }) {
               <span className="sr-only">Loading...</span>
             </div>
           )}
+          {/* list of contacts */}
           <ul className="space-y-2 font-medium">
             {contacts != null &&
               contacts.map((c) => (
@@ -175,6 +197,7 @@ function Home({ socket }) {
                   <span className="ml-3">{c.id}</span>
                 </NavLink>
               ))}
+              {/* Loading for data fetching */}
             {contacts === null &&
               skeleton.map((s) => (
                 <li key={s}>
@@ -193,6 +216,7 @@ function Home({ socket }) {
           </ul>
         </div>
       </aside>
+      {/* Main content */}
       <div className="p-4 sm:ml-96 text-[#f8f8f8]">
         <div className="p-4 relative py-14 border-[#f8f8f8] rounded-lg h-[37.5rem] mt-14">
           <div className="w-full h-full text-2xl font-semibold flex items-center justify-center">

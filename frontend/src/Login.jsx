@@ -3,63 +3,85 @@ import "./index.css";
 import FloatingInput from "./components/FloatingInput";
 import ErrorMessage from "./components/ErrorMessage";
 import Button from "./components/Button";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import client from "./client";
 import handleError from "./util";
-import SuccessToast from "./components/SuccessToast";
 import LoadingPage from "./components/LoadingPage";
+
 function Login({ socket }) {
+  // Refs for username and password input fields
   const usernameRef = useRef();
   const passwordRef = useRef();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+
+  // State variables
+  const [username, setUsername] = useState(""); // Username input value
+  const [password, setPassword] = useState(""); // Password input value
+  const [isSubmitting, setIsSubmitting] = useState(false); // Flag for form submission
+  const [isLoading, setIsLoading] = useState(false); // Flag for loading state
+  const [errorMessage, setErrorMessage] = useState(null); // Error message state
+
+  // Check if the user is already logged in
   async function checkLoggedIn() {
-    setIsLoading(true);
+    setIsLoading(true); // Set loading to true while checking
     try {
-      let res = await client.get("api/users/current-user", { withCredentials: true });
-      navigate("/home");
-    } catch (error) {}
-    setIsLoading(false);
+      let res = await client.get("api/users/current-user", {
+        withCredentials: true,
+      });
+      navigate("/home"); // Redirect to home if already logged in
+    } catch (error) {
+      // Handle error (e.g., user is not logged in)
+    }
+    setIsLoading(false); // Set loading to false after check
   }
+
+  // Handle form submission
   async function handleSubmit(e) {
-    e.preventDefault();
-    if (username == "") {
+    e.preventDefault(); // Prevent default form submission behavior
+
+    // Validate inputs
+    if (username === "") {
       usernameRef.current.focus();
-      setErrorMessage("All field must be filled");
+      setErrorMessage("All fields must be filled");
       return;
     }
-    if (password == "") {
+    if (password === "") {
       passwordRef.current.focus();
-      setErrorMessage("All field must be filled");
+      setErrorMessage("All fields must be filled");
       return;
     }
+
     try {
-      setIsSubmitting(true);
+      setIsSubmitting(true); // Set submitting to true while processing login
       let res = await client.post(
         "/api/users/login",
         { username, password },
         { withCredentials: true }
       );
+      // Emit login event to the server
       socket.emit("login", { username, socketID: socket.id });
-      navigate("/home");
+      navigate("/home"); // Redirect to home on successful login
     } catch (error) {
+      // Handle login error
       let errorObject = handleError(error, navigate);
       if (errorObject?.message) {
         setErrorMessage(errorObject.message);
       }
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Reset submitting state on error
     }
   }
+
+  // Check if the user is already logged in when the component mounts
   useEffect(() => {
     checkLoggedIn();
   }, []);
+
+  // Clear error message when username or password changes
   useEffect(() => {
     setErrorMessage(null);
   }, [username, password]);
+
+  // Display loading screen while checking login status
   if (isLoading) {
     return <LoadingPage></LoadingPage>;
   }

@@ -3,72 +3,111 @@ import "./index.css";
 import FloatingInput from "./components/FloatingInput";
 import ErrorMessage from "./components/ErrorMessage";
 import Button from "./components/Button";
-import { Link, useFetcher, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import client from "./client";
 import handleError from "./util";
 import LoadingPage from "./components/LoadingPage";
+
+/**
+ * Register component handles user registration.
+ * This component includes a form for users to create a new account.
+ * It checks if the user is already logged in, displays a loading indicator,
+ * and handles form submission with validation.
+ *
+ * @component
+ */
 function Register() {
+  // Refs for form fields
   const usernameRef = useRef();
   const passwordRef = useRef();
   const conPasswordRef = useRef();
+
+  // React Router hook to navigate programmatically
   const navigate = useNavigate();
+
+  // State hooks for form data and UI status
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * Checks if the user is already logged in and navigates to the home page if so.
+   * Sets loading state while checking.
+   */
   async function checkLoggedIn() {
     setIsLoading(true);
     try {
-      let res = await client.get("api/users/current-user", { withCredentials: true });
+      let res = await client.get("api/users/current-user", {
+        withCredentials: true,
+      });
       navigate("/home");
-    } catch (error) {}
+    } catch (error) {
+      // Handle errors silently for now
+    }
     setIsLoading(false);
   }
+
+  /**
+   * Handles form submission for user registration.
+   * Validates form inputs, checks if passwords match, and submits the data.
+   * Displays appropriate error messages and updates submission state.
+   *
+   * @param {React.FormEvent} e - The form submit event.
+   */
   async function handleSubmit(e) {
     e.preventDefault();
-    if (username == "") {
+
+    // Validate form fields
+    if (username === "") {
       usernameRef.current.focus();
-      setErrorMessage("All field must be filled");
+      setErrorMessage("All fields must be filled");
       return;
     }
-    if (password == "") {
+    if (password === "") {
       passwordRef.current.focus();
-      setErrorMessage("All field must be filled");
+      setErrorMessage("All fields must be filled");
       return;
     }
-    if (confirmPassword == "") {
+    if (confirmPassword === "") {
       conPasswordRef.current.focus();
-      setErrorMessage("All field must be filled");
+      setErrorMessage("All fields must be filled");
       return;
     }
-   
     if (password !== confirmPassword) {
       setErrorMessage("Password confirmation does not match");
       return;
     }
-   
+
     try {
       setIsSubmitting(true);
-      let res = await client.post(
+      await client.post(
         "/api/users/register",
-        { username, password},
+        { username, password },
         { withCredentials: true }
       );
       navigate("/login");
     } catch (error) {
+      // Handle errors and set error message
       let errorObject = handleError(error, navigate);
       setErrorMessage(errorObject.message);
       setIsSubmitting(false);
     }
   }
+
+  // Check if the user is logged in on component mount
   useEffect(() => {
     checkLoggedIn();
   }, []);
+
+  // Clear error messages when input fields change
   useEffect(() => {
     setErrorMessage(null);
   }, [username, password, confirmPassword]);
+
+  // Display loading indicator if the checkLoggedIn request is in progress
   if (isLoading) {
     return <LoadingPage />;
   }
